@@ -13,15 +13,9 @@ class MorningRoutineApp extends HTMLElement {
     link.href = new URL('../app.css', import.meta.url).href;
     this.shadowRoot.appendChild(link);
 
-    // Charger les étapes depuis localStorage ou utiliser les valeurs par défaut
+    // Charger les étapes depuis localStorage uniquement
     const savedSteps = localStorage.getItem('routineSteps');
-    this.steps = savedSteps ? JSON.parse(savedSteps) : [
-      { name: "Prendre la pilule", timings: ["7:00", "7:05"], recommended: "6:55 - 7:00" },
-      { name: "Manger", timings: ["7:10", "7:15"], recommended: "7:00 - 7:10" },
-      { name: "Habiller", timings: ["7:15", "7:20"], recommended: "7:10 - 7:15" },
-      { name: "Dents", timings: ["7:20", "7:25"], recommended: "7:15 - 7:20" },
-      { name: "Habillage pour dehors", timings: ["7:30", "7:30"], recommended: "7:20 - 7:30" }
-    ];
+    this.steps = savedSteps ? JSON.parse(savedSteps) : [];
 
     this.currentStepIndex = 0;
     this.customTime = localStorage.getItem('customTime');
@@ -72,7 +66,7 @@ class MorningRoutineApp extends HTMLElement {
     window.addEventListener('storage', (e) => {
       if (e.key === 'routineSteps') {
         const savedSteps = localStorage.getItem('routineSteps');
-        this.steps = savedSteps ? JSON.parse(savedSteps) : this.steps;
+        this.steps = savedSteps ? JSON.parse(savedSteps) : [];
         this.currentStepIndex = 0;
         this.isRoutineCompleted = false;
         this.updateDisplay();
@@ -111,6 +105,17 @@ class MorningRoutineApp extends HTMLElement {
 
     const timerElement = this.shadowRoot.querySelector('routine-timer');
     const stepElement = this.shadowRoot.querySelector('routine-step');
+
+    // Si pas d'étapes configurées
+    if (this.steps.length === 0) {
+      timerElement.setAttribute('time', formattedTime);
+      timerElement.setAttribute('color', 'black');
+      stepElement.setAttribute('name', 'Aucune étape configurée');
+      stepElement.setAttribute('recommended', 'Cliquez sur ⚙️ pour configurer vos étapes');
+      stepElement.setAttribute('visible', 'true');
+      stepElement.setAttribute('color', 'orange');
+      return;
+    }
 
     if (currentTime >= this.timeToMinutes("6:30") && currentTime <= this.timeToMinutes("7:40")) {
       timerElement.setAttribute('time', formattedTime);
@@ -151,6 +156,8 @@ class MorningRoutineApp extends HTMLElement {
   }
 
   handleNextStep() {
+    if (this.steps.length === 0) return;
+    
     if (!this.isMuted) this.audio.play();
 
     const now = new Date();
