@@ -18,17 +18,28 @@
     this.setupEventListeners();
   }
 
+  // Calculer le temps recommandé à partir des timings
+  calculateRecommended(greenTime, orangeTime, index) {
+    if (!greenTime) return '';
+    
+    // Pour toutes les étapes, afficher "avant [heure limite verte]"
+    return `avant ${greenTime}`;
+  }
+
   render() {
     const indicatorDisplay = this.customTime ? 'block' : 'none';
-    const stepsHtml = this.steps.length > 0 ? this.steps.map((step, index) => `
-      <div class="step-config">
-        <input type="text" class="step-name" data-index="${index}" value="${step.name}" placeholder="Nom de l'étape">
-        <input type="time" class="step-time-green" data-index="${index}" value="${step.timings[0]}" title="Limite verte">
-        <input type="time" class="step-time-orange" data-index="${index}" value="${step.timings[1]}" title="Limite orange">
-        <input type="text" class="step-recommended" data-index="${index}" value="${step.recommended || ''}" placeholder="Temps recommandé">
-        <button class="test-button remove-step" data-index="${index}">🗑️</button>
-      </div>
-    `).join('') : '<p style="text-align: center; color: #666; padding: 2rem;">Aucune étape configurée. Cliquez sur "➕ Ajouter une étape" pour commencer.</p>';
+    const stepsHtml = this.steps.length > 0 ? this.steps.map((step, index) => {
+      const recommended = this.calculateRecommended(step.timings[0], step.timings[1], index);
+      return `
+        <div class="step-config">
+          <input type="text" class="step-name" data-index="${index}" value="${step.name}" placeholder="Nom de l'étape">
+          <input type="time" class="step-time-green" data-index="${index}" value="${step.timings[0]}" title="Limite verte">
+          <input type="time" class="step-time-orange" data-index="${index}" value="${step.timings[1]}" title="Limite orange">
+          <span class="step-recommended-display" data-index="${index}">${recommended || 'À définir'}</span>
+          <button class="test-button remove-step" data-index="${index}">🗑️</button>
+        </div>
+      `;
+    }).join('') : '<p style="text-align: center; color: #666; padding: 2rem;">Aucune étape configurée. Cliquez sur "➕ Ajouter une étape" pour commencer.</p>';
 
     let container = this.shadowRoot.querySelector('.config-container');
     if (!container) {
@@ -147,19 +158,57 @@
         this.setupEventListeners();
       };
     });
+
+    // Écouter les changements sur les inputs de temps pour mettre à jour le temps recommandé
+    this.shadowRoot.querySelectorAll('.step-time-green, .step-time-orange').forEach(input => {
+      input.addEventListener('input', () => {
+        this.updateRecommendedDisplay();
+      });
+    });
+  }
+
+  updateRecommendedDisplay() {
+    // Sauvegarder d'abord les valeurs actuelles dans this.steps SANS recalculer recommended
+    const names = this.shadowRoot.querySelectorAll('.step-name');
+    const greenTimes = this.shadowRoot.querySelectorAll('.step-time-green');
+    const orangeTimes = this.shadowRoot.querySelectorAll('.step-time-orange');
+
+    this.steps = Array.from(names).map((nameInput, index) => ({
+      name: nameInput.value,
+      timings: [greenTimes[index].value, orangeTimes[index].value],
+      recommended: '' // On le recalculera après
+    }));
+    
+    // Maintenant recalculer et afficher les recommended
+    const recommendedDisplays = this.shadowRoot.querySelectorAll('.step-recommended-display');
+
+    recommendedDisplays.forEach((display, index) => {
+      const recommended = this.calculateRecommended(
+        this.steps[index].timings[0], 
+        this.steps[index].timings[1], 
+        index
+      );
+      display.textContent = recommended || 'À définir';
+      this.steps[index].recommended = recommended; // Mettre à jour dans this.steps aussi
+    });
   }
 
   saveStepsFromInputs() {
     const names = this.shadowRoot.querySelectorAll('.step-name');
     const greenTimes = this.shadowRoot.querySelectorAll('.step-time-green');
     const orangeTimes = this.shadowRoot.querySelectorAll('.step-time-orange');
-    const recommendeds = this.shadowRoot.querySelectorAll('.step-recommended');
 
+    // D'abord créer les étapes avec les timings
     this.steps = Array.from(names).map((nameInput, index) => ({
       name: nameInput.value,
       timings: [greenTimes[index].value, orangeTimes[index].value],
-      recommended: recommendeds[index].value
+      recommended: '' // Temporaire
     }));
+    
+    // Ensuite recalculer tous les recommended en utilisant les timings à jour
+    this.steps.forEach((step, index) => {
+      step.recommended = this.calculateRecommended(step.timings[0], step.timings[1], index);
+    });
   }
 }
 

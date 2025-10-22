@@ -117,31 +117,37 @@ class MorningRoutineApp extends HTMLElement {
       return;
     }
 
-    if (currentTime >= this.timeToMinutes("6:30") && currentTime <= this.timeToMinutes("7:40")) {
-      timerElement.setAttribute('time', formattedTime);
-      timerElement.setAttribute('color', 'black');
+    // Calculer la fenêtre de routine dynamiquement
+    const firstStepGreenTime = this.timeToMinutes(this.steps[0].timings[0]);
+    const routineStartTime = firstStepGreenTime - 60; // 1h avant le vert de la première étape
 
-      // Ne pas mettre à jour l'étape si la routine est terminée
-      if (this.isRoutineCompleted) {
-        return;
-      }
-
-      const currentStep = this.steps[this.currentStepIndex];
-      stepElement.setAttribute('name', currentStep.name);
-      stepElement.setAttribute('recommended', currentStep.recommended);
-      stepElement.setAttribute('visible', 'true');
-
-      const color = this.getStepColor(currentTime);
-      stepElement.setAttribute('color', color);
-
-      if (color === '#b22222' && !this.isMuted && stepElement.getAttribute('color') !== '#b22222') {
-        this.notificationAudio.play();
-      }
-    } else {
-      timerElement.setAttribute('time', `${formattedTime} - Routine terminée`);
+    // Si la routine n'a pas encore commencé
+    if (currentTime < routineStartTime) {
+      timerElement.setAttribute('time', `${formattedTime} - Routine pas encore commencée`);
       timerElement.setAttribute('color', 'black');
       stepElement.setAttribute('visible', 'false');
-      this.isRoutineCompleted = false; // Réinitialiser pour le lendemain
+      return;
+    }
+
+    // Si la routine est en cours ou en retard (pas de limite de temps max)
+    timerElement.setAttribute('time', formattedTime);
+    timerElement.setAttribute('color', 'black');
+
+    // Ne pas mettre à jour l'étape si la routine est terminée
+    if (this.isRoutineCompleted) {
+      return;
+    }
+
+    const currentStep = this.steps[this.currentStepIndex];
+    stepElement.setAttribute('name', currentStep.name);
+    stepElement.setAttribute('recommended', currentStep.recommended);
+    stepElement.setAttribute('visible', 'true');
+
+    const color = this.getStepColor(currentTime);
+    stepElement.setAttribute('color', color);
+
+    if (color === '#b22222' && !this.isMuted && stepElement.getAttribute('color') !== '#b22222') {
+      this.notificationAudio.play();
     }
   }
 
@@ -169,14 +175,22 @@ class MorningRoutineApp extends HTMLElement {
     const isLastStep = this.currentStepIndex === this.steps.length - 1;
     const completedInGreen = currentTime < this.timeToMinutes(currentStep.timings[1]);
 
-    if (isLastStep && completedInGreen) {
+    if (isLastStep) {
+      // Compléter la dernière étape peu importe l'heure
       const stepElement = this.shadowRoot.querySelector('routine-step');
-      stepElement.setAttribute('name', 'Bravo, la routine est terminée dans les temps !');
-      stepElement.setAttribute('recommended', '');
-      stepElement.setAttribute('color', 'green');
+      stepElement.setAttribute('recommended', ''); // Enlever le temps recommandé
       stepElement.setAttribute('visible', 'true');
-      this.isRoutineCompleted = true; // Marquer la routine comme terminée
-    } else if (!isLastStep) {
+      
+      if (completedInGreen) {
+        stepElement.setAttribute('name', 'Bravo, la routine est terminée dans les temps !');
+        stepElement.setAttribute('color', 'green');
+      } else {
+        stepElement.setAttribute('name', 'Routine terminée (avec du retard)');
+        stepElement.setAttribute('color', 'orange');
+      }
+      
+      this.isRoutineCompleted = true;
+    } else {
       this.currentStepIndex++;
       this.updateDisplay();
     }
