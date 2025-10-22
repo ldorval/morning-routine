@@ -29,8 +29,6 @@ function updateMuteButton() {
   muteButton.prepend(muteIcon);
 }
 
-
-
 // Toggle mute/unmute
 muteButton.addEventListener('click', () => {
   isMuted = !isMuted;

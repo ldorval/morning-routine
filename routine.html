@@ -7,22 +7,7 @@
   <link rel="stylesheet" href="app.css">
 </head>
 <body>
-<h1>Routine Matinale</h1>
-<div class="time" id="time">00:00</div>
-<h2 id="step" style="display: none;">Étape : Prendre la pilule</h2>
-<p id="step-timing" style="display: none;">Temps recommandé : 6:55 - 7:00</p>
-<button id="mute-toggle">
-  <span id="mute-icon">🔊</span> Activer le son
-</button>
-
-<button id="toggle-test-settings" style="position: absolute; top: 10px; right: 10px;">Tests</button>
-<div id="test-settings" style="display: none;">
-  <input type="time" id="custom-time" step="60">
-  <button id="set-custom-time">Définir l'heure</button>
-  <button id="reset-custom-time">Réinitialiser l'heure</button>
-  <p id="custom-time-indicator" style="display: none; color: blue;">Mode heure personnalisée activé</p>
-</div>
-
-<script src="app.js"></script>
+  <morning-routine-app></morning-routine-app>
+  <script type="module" src="components/morning-routine-app.js"></script>
 </body>
 </html>
