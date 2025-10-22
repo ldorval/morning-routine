@@ -12,7 +12,7 @@ class MorningRoutineApp extends HTMLElement {
     link.rel = 'stylesheet';
     link.href = new URL('../app.css', import.meta.url).href;
     this.shadowRoot.appendChild(link);
-    
+
     // Charger les étapes depuis localStorage ou utiliser les valeurs par défaut
     const savedSteps = localStorage.getItem('routineSteps');
     this.steps = savedSteps ? JSON.parse(savedSteps) : [
@@ -22,12 +22,12 @@ class MorningRoutineApp extends HTMLElement {
       { name: "Dents", timings: ["7:20", "7:25"], recommended: "7:15 - 7:20" },
       { name: "Habillage pour dehors", timings: ["7:30", "7:30"], recommended: "7:20 - 7:30" }
     ];
-    
+
     this.currentStepIndex = 0;
     this.customTime = localStorage.getItem('customTime');
     this.isMuted = JSON.parse(localStorage.getItem('isMuted')) || false;
     this.isRoutineCompleted = false;
-    
+
     this.audio = new Audio("https://www.soundjay.com/button/beep-07.wav");
     this.notificationAudio = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
   }
@@ -68,35 +68,7 @@ class MorningRoutineApp extends HTMLElement {
       localStorage.setItem('isMuted', JSON.stringify(this.isMuted));
     });
 
-    this.shadowRoot.addEventListener('custom-time-set', (e) => {
-      this.customTime = e.detail.customTime;
-      if (this.customTime) {
-        localStorage.setItem('customTime', this.customTime);
-      } else {
-        localStorage.removeItem('customTime');
-      }
-      this.updateDisplay();
-    });
-
-    this.shadowRoot.addEventListener('steps-updated', (e) => {
-      if (e.detail.steps) {
-        this.steps = e.detail.steps;
-      } else {
-        // Réinitialiser aux valeurs par défaut
-        this.steps = [
-          { name: "Prendre la pilule", timings: ["7:00", "7:05"], recommended: "6:55 - 7:00" },
-          { name: "Manger", timings: ["7:10", "7:15"], recommended: "7:00 - 7:10" },
-          { name: "Habiller", timings: ["7:15", "7:20"], recommended: "7:10 - 7:15" },
-          { name: "Dents", timings: ["7:20", "7:25"], recommended: "7:15 - 7:20" },
-          { name: "Habillage pour dehors", timings: ["7:30", "7:30"], recommended: "7:20 - 7:30" }
-        ];
-      }
-      this.currentStepIndex = 0;
-      this.isRoutineCompleted = false;
-      this.updateDisplay();
-    });
-
-    // Écouter les changements de localStorage pour recharger les étapes
+    // Écouter les changements dans localStorage pour recharger automatiquement
     window.addEventListener('storage', (e) => {
       if (e.key === 'routineSteps') {
         const savedSteps = localStorage.getItem('routineSteps');
@@ -126,37 +98,37 @@ class MorningRoutineApp extends HTMLElement {
   updateDisplay() {
     const now = new Date();
     let hours, minutes;
-    
+
     if (this.customTime && this.customTime.includes(':')) {
       [hours, minutes] = this.customTime.split(':').map(Number);
     } else {
       hours = now.getHours();
       minutes = now.getMinutes();
     }
-    
+
     const currentTime = hours * 60 + minutes;
     const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-    
+
     const timerElement = this.shadowRoot.querySelector('routine-timer');
     const stepElement = this.shadowRoot.querySelector('routine-step');
-    
+
     if (currentTime >= this.timeToMinutes("6:30") && currentTime <= this.timeToMinutes("7:40")) {
       timerElement.setAttribute('time', formattedTime);
       timerElement.setAttribute('color', 'black');
-      
+
       // Ne pas mettre à jour l'étape si la routine est terminée
       if (this.isRoutineCompleted) {
         return;
       }
-      
+
       const currentStep = this.steps[this.currentStepIndex];
       stepElement.setAttribute('name', currentStep.name);
       stepElement.setAttribute('recommended', currentStep.recommended);
       stepElement.setAttribute('visible', 'true');
-      
+
       const color = this.getStepColor(currentTime);
       stepElement.setAttribute('color', color);
-      
+
       if (color === '#b22222' && !this.isMuted && stepElement.getAttribute('color') !== '#b22222') {
         this.notificationAudio.play();
       }
@@ -172,7 +144,7 @@ class MorningRoutineApp extends HTMLElement {
     const step = this.steps[this.currentStepIndex];
     const greenTime = this.timeToMinutes(step.timings[0]);
     const yellowTime = this.timeToMinutes(step.timings[1]);
-    
+
     if (currentTime < greenTime) return 'green';
     if (currentTime < yellowTime) return '#f29913';
     return '#b22222';
@@ -180,16 +152,16 @@ class MorningRoutineApp extends HTMLElement {
 
   handleNextStep() {
     if (!this.isMuted) this.audio.play();
-    
+
     const now = new Date();
     const currentTime = this.customTime && this.customTime.includes(':')
       ? this.customTime.split(':').map(Number)[0] * 60 + this.customTime.split(':').map(Number)[1]
       : now.getHours() * 60 + now.getMinutes();
-    
+
     const currentStep = this.steps[this.currentStepIndex];
     const isLastStep = this.currentStepIndex === this.steps.length - 1;
     const completedInGreen = currentTime < this.timeToMinutes(currentStep.timings[1]);
-    
+
     if (isLastStep && completedInGreen) {
       const stepElement = this.shadowRoot.querySelector('routine-step');
       stepElement.setAttribute('name', 'Bravo, la routine est terminée dans les temps !');

@@ -37,7 +37,7 @@
         <button class="test-button remove-step" data-index="${index}">🗑️</button>
       </div>
     `).join('');
-    
+
     let container = this.shadowRoot.querySelector('.config-container');
     if (!container) {
       container = document.createElement('div');
@@ -50,7 +50,7 @@
         <h1>⚙️ Configurations</h1>
         <a href="index.html" class="test-button">← Retour à la routine</a>
       </div>
-      
+
       <div class="config-section">
         <h2>Heure personnalisée</h2>
         <div class="config-content">
@@ -91,14 +91,14 @@
     const addStepButton = this.shadowRoot.querySelector('#add-step');
     const saveStepsButton = this.shadowRoot.querySelector('#save-steps');
     const resetStepsButton = this.shadowRoot.querySelector('#reset-steps');
-    
+
     setButton.onclick = () => {
       this.customTime = input.value;
       localStorage.setItem('customTime', this.customTime);
       this.render();
       this.setupEventListeners();
     };
-    
+
     resetButton.onclick = () => {
       this.customTime = null;
       localStorage.removeItem('customTime');
