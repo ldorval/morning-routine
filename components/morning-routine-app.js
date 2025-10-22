@@ -53,8 +53,18 @@ class MorningRoutineApp extends HTMLElement {
   setupEventListeners() {
     document.addEventListener('keydown', (event) => {
       if (event.code === 'Space') {
+        event.preventDefault(); // Empêcher le scroll de la page
         this.handleNextStep();
       }
+    });
+
+    // Ajouter un écouteur de clic sur tout le conteneur
+    this.shadowRoot.addEventListener('click', (event) => {
+      // Ne pas déclencher si on clique sur le lien de configuration
+      if (event.target.classList.contains('config-link') || event.target.closest('.config-link')) {
+        return;
+      }
+      this.handleNextStep();
     });
 
     this.shadowRoot.addEventListener('mute-toggle', (e) => {
