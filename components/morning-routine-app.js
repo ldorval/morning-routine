@@ -15,11 +15,11 @@ class MorningRoutineApp extends HTMLElement {
     this.shadowRoot.appendChild(link);
     
     this.steps = [
-      { name: "Prendre la pilule", timings: [420, 425, 425], recommended: "6:55 - 7:00" },
-      { name: "Manger", timings: [430, 435, 435], recommended: "7:00 - 7:10" },
-      { name: "Habiller", timings: [435, 440, 440], recommended: "7:10 - 7:15" },
-      { name: "Dents", timings: [440, 445, 450], recommended: "7:15 - 7:20" },
-      { name: "Habillage pour dehors", timings: [450, 450, 450], recommended: "7:20 - 7:30" }
+      { name: "Prendre la pilule", timings: ["7:00", "7:05"], recommended: "6:55 - 7:00" },
+      { name: "Manger", timings: ["7:10", "7:15"], recommended: "7:00 - 7:10" },
+      { name: "Habiller", timings: ["7:15", "7:20"], recommended: "7:10 - 7:15" },
+      { name: "Dents", timings: ["7:20", "7:25"], recommended: "7:15 - 7:20" },
+      { name: "Habillage pour dehors", timings: ["7:30", "7:30"], recommended: "7:20 - 7:30" }
     ];
     
     this.currentStepIndex = 0;
@@ -83,6 +83,12 @@ class MorningRoutineApp extends HTMLElement {
     setInterval(() => this.updateDisplay(), 1000);
   }
 
+  // Convertir "HH:MM" en minutes depuis minuit
+  timeToMinutes(time) {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+  }
+
   updateDisplay() {
     const now = new Date();
     let hours, minutes;
@@ -100,7 +106,7 @@ class MorningRoutineApp extends HTMLElement {
     const timerElement = this.shadowRoot.querySelector('routine-timer');
     const stepElement = this.shadowRoot.querySelector('routine-step');
     
-    if (currentTime >= 390 && currentTime <= 460) {
+    if (currentTime >= this.timeToMinutes("6:30") && currentTime <= this.timeToMinutes("7:40")) {
       timerElement.setAttribute('time', formattedTime);
       timerElement.setAttribute('color', 'black');
       
@@ -130,7 +136,8 @@ class MorningRoutineApp extends HTMLElement {
 
   getStepColor(currentTime) {
     const step = this.steps[this.currentStepIndex];
-    const [greenTime, yellowTime] = step.timings;
+    const greenTime = this.timeToMinutes(step.timings[0]);
+    const yellowTime = this.timeToMinutes(step.timings[1]);
     
     if (currentTime < greenTime) return 'green';
     if (currentTime < yellowTime) return '#f29913';
@@ -147,7 +154,7 @@ class MorningRoutineApp extends HTMLElement {
     
     const currentStep = this.steps[this.currentStepIndex];
     const isLastStep = this.currentStepIndex === this.steps.length - 1;
-    const completedInGreen = currentTime < currentStep.timings[1];
+    const completedInGreen = currentTime < this.timeToMinutes(currentStep.timings[1]);
     
     if (isLastStep && completedInGreen) {
       const stepElement = this.shadowRoot.querySelector('routine-step');
