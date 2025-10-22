@@ -3,6 +3,11 @@
     super();
     this.attachShadow({ mode: 'open' });
     this.customTime = localStorage.getItem('customTime');
+    
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = new URL('../app.css', import.meta.url).href;
+    this.shadowRoot.appendChild(link);
   }
 
   connectedCallback() {
@@ -13,54 +18,22 @@
   render() {
     const indicatorDisplay = this.customTime ? 'block' : 'none';
     
-    this.shadowRoot.innerHTML = `
-      <style>
-        :host {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-        }
-        button {
-          padding: 10px 20px;
-          font-size: 1.5rem;
-          cursor: pointer;
-          border: none;
-          border-radius: 8px;
-          background-color: #007BFF;
-          color: white;
-          transition: background-color 0.3s;
-          margin: 5px;
-        }
-        button:hover {
-          background-color: #0056b3;
-        }
-        #test-settings {
-          display: none;
-          background: white;
-          padding: 20px;
-          border-radius: 8px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-          margin-top: 10px;
-        }
-        #test-settings.visible {
-          display: block;
-        }
-        input {
-          padding: 8px;
-          font-size: 1.2rem;
-          margin: 5px;
-        }
-        p {
-          color: blue;
-          font-size: 1.2rem;
-        }
-      </style>
-      <button id="toggle-test-settings">Configurations</button>
-      <div id="test-settings">
-        <input type="time" id="custom-time" step="60" value="${this.customTime || ''}">
-        <button id="set-custom-time">Définir l'heure</button>
-        <button id="reset-custom-time">Réinitialiser l'heure</button>
-        <p id="custom-time-indicator" style="display: ${indicatorDisplay}">Mode heure personnalisée activé</p>
+    let container = this.shadowRoot.querySelector('.test-controls-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'test-controls-container';
+      this.shadowRoot.appendChild(container);
+    }
+    
+    container.innerHTML = `
+      <div class="controls-container">
+        <button id="toggle-test-settings" class="test-button">Configurations</button>
+        <div id="test-settings" class="test-settings">
+          <input type="time" id="custom-time" step="60" value="${this.customTime || ''}">
+          <button id="set-custom-time" class="test-button">Définir l'heure</button>
+          <button id="reset-custom-time" class="test-button">Réinitialiser l'heure</button>
+          <p id="custom-time-indicator" style="display: ${indicatorDisplay}">Mode heure personnalisée activé</p>
+        </div>
       </div>
     `;
   }
@@ -72,11 +45,11 @@
     const resetButton = this.shadowRoot.querySelector('#reset-custom-time');
     const input = this.shadowRoot.querySelector('#custom-time');
     
-    toggleButton.addEventListener('click', () => {
+    toggleButton.onclick = () => {
       testSettings.classList.toggle('visible');
-    });
+    };
     
-    setButton.addEventListener('click', () => {
+    setButton.onclick = () => {
       this.customTime = input.value;
       this.render();
       this.setupEventListeners();
@@ -86,9 +59,9 @@
         bubbles: true,
         composed: true
       }));
-    });
+    };
     
-    resetButton.addEventListener('click', () => {
+    resetButton.onclick = () => {
       this.customTime = null;
       this.render();
       this.setupEventListeners();
@@ -98,7 +71,7 @@
         bubbles: true,
         composed: true
       }));
-    });
+    };
   }
 }
 

@@ -8,6 +8,12 @@ class MorningRoutineApp extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     
+    // Charger le CSS avec un link element
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = new URL('../app.css', import.meta.url).href;
+    this.shadowRoot.appendChild(link);
+    
     this.steps = [
       { name: "Prendre la pilule", timings: [420, 425, 425], recommended: "6:55 - 7:00" },
       { name: "Manger", timings: [430, 435, 435], recommended: "7:00 - 7:10" },
@@ -19,7 +25,7 @@ class MorningRoutineApp extends HTMLElement {
     this.currentStepIndex = 0;
     this.customTime = localStorage.getItem('customTime');
     this.isMuted = JSON.parse(localStorage.getItem('isMuted')) || false;
-    this.isRoutineCompleted = false; // Ajouter cette ligne
+    this.isRoutineCompleted = false;
     
     this.audio = new Audio("https://www.soundjay.com/button/beep-07.wav");
     this.notificationAudio = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
@@ -32,28 +38,21 @@ class MorningRoutineApp extends HTMLElement {
   }
 
   render() {
-    this.shadowRoot.innerHTML = `
-      <style>
-        :host {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-height: 100vh;
-          font-family: Arial, sans-serif;
-          background-color: #f7f7f7;
-        }
-        h1 {
-          font-size: 5rem;
-          margin: 20px 0;
-        }
-      </style>
+    // Ne pas écraser innerHTML qui supprimerait le <link> CSS
+    const container = this.shadowRoot.querySelector('.app-container') || document.createElement('div');
+    container.className = 'app-container';
+    
+    container.innerHTML = `
       <h1>Routine Matinale</h1>
       <routine-timer></routine-timer>
       <routine-step></routine-step>
       <routine-controls></routine-controls>
       <test-controls></test-controls>
     `;
+    
+    if (!this.shadowRoot.querySelector('.app-container')) {
+      this.shadowRoot.appendChild(container);
+    }
   }
 
   setupEventListeners() {

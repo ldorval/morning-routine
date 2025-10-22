@@ -3,6 +3,11 @@
     super();
     this.attachShadow({ mode: 'open' });
     this.isMuted = JSON.parse(localStorage.getItem('isMuted')) || false;
+    
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = new URL('../app.css', import.meta.url).href;
+    this.shadowRoot.appendChild(link);
   }
 
   connectedCallback() {
@@ -14,45 +19,29 @@
     const icon = this.isMuted ? '🔇' : '🔊';
     const text = this.isMuted ? ' Activer le son' : ' Couper le son';
     
-    this.shadowRoot.innerHTML = `
-      <style>
-        button {
-          padding: 10px 20px;
-          font-size: 1.5rem;
-          margin-top: 20px;
-          cursor: pointer;
-          border: none;
-          border-radius: 8px;
-          background-color: #007BFF;
-          color: white;
-          transition: background-color 0.3s;
-        }
-        button:hover {
-          background-color: #0056b3;
-        }
-        #mute-icon {
-          margin-right: 10px;
-        }
-      </style>
-      <button id="mute-toggle">
-        <span id="mute-icon">${icon}</span>${text}
-      </button>
-    `;
+    let button = this.shadowRoot.querySelector('#mute-toggle');
+    if (!button) {
+      button = document.createElement('button');
+      button.id = 'mute-toggle';
+      button.className = 'controls-button';
+      this.shadowRoot.appendChild(button);
+    }
+    
+    button.innerHTML = `<span class="mute-icon">${icon}</span>${text}`;
   }
 
   setupEventListeners() {
     const button = this.shadowRoot.querySelector('#mute-toggle');
-    button.addEventListener('click', () => {
+    button.onclick = () => {
       this.isMuted = !this.isMuted;
       this.render();
-      this.setupEventListeners();
       
       this.dispatchEvent(new CustomEvent('mute-toggle', {
         detail: { isMuted: this.isMuted },
         bubbles: true,
         composed: true
       }));
-    });
+    };
   }
 }
 

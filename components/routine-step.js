@@ -2,6 +2,11 @@
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = new URL('../app.css', import.meta.url).href;
+    this.shadowRoot.appendChild(link);
   }
 
   static get observedAttributes() {
@@ -28,23 +33,15 @@
       this.style.display = 'block';
     }
     
-    this.shadowRoot.innerHTML = `
-      <style>
-        :host {
-          display: block;
-          text-align: center;
-        }
-        h2 {
-          font-size: 3rem;
-          margin: 10px 0;
-          color: ${color};
-        }
-        p {
-          font-size: 2.5rem;
-          margin: 10px 0;
-        }
-      </style>
-      <h2>Étape : ${name}</h2>
+    let container = this.shadowRoot.querySelector('.step-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'step-container';
+      this.shadowRoot.appendChild(container);
+    }
+    
+    container.innerHTML = `
+      <h2 style="color: ${color}">Étape : ${name}</h2>
       ${recommended ? `<p>Temps recommandé : ${recommended}</p>` : ''}
     `;
   }
