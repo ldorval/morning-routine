@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routine Matinale</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f7f7f7;
+        }
+        h1 {
+            font-size: 4rem;
+            margin: 20px 0;
+        }
+        h2 {
+            font-size: 2rem;
+            margin: 10px 0;
+        }
+        .time {
+            font-size: 6rem;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1.5rem;
+            margin-top: 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background-color: #007BFF;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h1>Routine Matinale</h1>
+<div class="time" id="time">00:00</div>
+<h2 id="step">Étape : Manger</h2>
+<p id="step-timing">Temps recommandé : 7:00 - 7:10</p>
+<button id="reset-button">Réinitialiser</button>
+
+<script>
+    const steps = [
+        { name: "Manger", timings: [430, 435, 435], recommended: "7:00 - 7:10" },
+        { name: "Habiller", timings: [435, 440, 440], recommended: "7:10 - 7:15" },
+        { name: "Dents", timings: [440, 445, 450], recommended: "7:15 - 7:20" },
+        { name: "Habillage pour dehors", timings: [450, 460, 460], recommended: "7:20 - 7:30" }
+    ];
+
+    let currentStepIndex = 0;
+    const audio = new Audio("https://www.soundjay.com/button/beep-07.wav");
+
+    // Update the current time every second
+    function updateTime() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        document.getElementById('time').textContent = formattedTime;
+
+        updateStepColor(hours * 60 + minutes);
+    }
+
+    // Determine the color based on the current time and step timings
+    function updateStepColor(currentTime) {
+        const step = steps[currentStepIndex];
+        const [greenTime, yellowTime, redTime] = step.timings;
+        let color = "";
+
+        if (currentTime < greenTime) {
+            color = "green";
+        } else if (currentTime < yellowTime) {
+            color = "yellow";
+        } else {
+            color = "red";
+        }
+
+        document.getElementById('step').style.color = color;
+    }
+
+    // Move to the next step when spacebar is pressed
+    function nextStep(event) {
+        if (event.code === 'Space') {
+            audio.play();
+            currentStepIndex = (currentStepIndex + 1) % steps.length;
+            document.getElementById('step').textContent = `Étape : ${steps[currentStepIndex].name}`;
+            document.getElementById('step-timing').textContent = `Temps recommandé : ${steps[currentStepIndex].recommended}`;
+        }
+    }
+
+    // Reset the routine to the first step
+    function resetRoutine() {
+        audio.play();
+        currentStepIndex = 0;
+        document.getElementById('step').textContent = `Étape : ${steps[currentStepIndex].name}`;
+        document.getElementById('step-timing').textContent = `Temps recommandé : ${steps[currentStepIndex].recommended}`;
+    }
+
+    document.addEventListener('keydown', nextStep);
+    document.getElementById('reset-button').addEventListener('click', resetRoutine);
+    setInterval(updateTime, 1000);
+</script>
+</body>
+</html>
