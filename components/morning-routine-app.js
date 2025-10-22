@@ -1,7 +1,6 @@
 ﻿import './routine-timer.js';
 import './routine-step.js';
 import './routine-controls.js';
-import './test-controls.js';
 
 class MorningRoutineApp extends HTMLElement {
   constructor() {
@@ -45,11 +44,11 @@ class MorningRoutineApp extends HTMLElement {
     container.className = 'app-container';
     
     container.innerHTML = `
+      <a href="configurations.html" class="config-link">⚙️</a>
       <h1>Routine Matinale</h1>
       <routine-timer></routine-timer>
       <routine-step></routine-step>
       <routine-controls></routine-controls>
-      <test-controls></test-controls>
     `;
     
     if (!this.shadowRoot.querySelector('.app-container')) {
@@ -95,6 +94,21 @@ class MorningRoutineApp extends HTMLElement {
       this.currentStepIndex = 0;
       this.isRoutineCompleted = false;
       this.updateDisplay();
+    });
+
+    // Écouter les changements de localStorage pour recharger les étapes
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'routineSteps') {
+        const savedSteps = localStorage.getItem('routineSteps');
+        this.steps = savedSteps ? JSON.parse(savedSteps) : this.steps;
+        this.currentStepIndex = 0;
+        this.isRoutineCompleted = false;
+        this.updateDisplay();
+      }
+      if (e.key === 'customTime') {
+        this.customTime = localStorage.getItem('customTime');
+        this.updateDisplay();
+      }
     });
   }
 
