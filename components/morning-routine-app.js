@@ -14,7 +14,9 @@ class MorningRoutineApp extends HTMLElement {
     link.href = new URL('../app.css', import.meta.url).href;
     this.shadowRoot.appendChild(link);
     
-    this.steps = [
+    // Charger les étapes depuis localStorage ou utiliser les valeurs par défaut
+    const savedSteps = localStorage.getItem('routineSteps');
+    this.steps = savedSteps ? JSON.parse(savedSteps) : [
       { name: "Prendre la pilule", timings: ["7:00", "7:05"], recommended: "6:55 - 7:00" },
       { name: "Manger", timings: ["7:10", "7:15"], recommended: "7:00 - 7:10" },
       { name: "Habiller", timings: ["7:15", "7:20"], recommended: "7:10 - 7:15" },
@@ -74,6 +76,24 @@ class MorningRoutineApp extends HTMLElement {
       } else {
         localStorage.removeItem('customTime');
       }
+      this.updateDisplay();
+    });
+
+    this.shadowRoot.addEventListener('steps-updated', (e) => {
+      if (e.detail.steps) {
+        this.steps = e.detail.steps;
+      } else {
+        // Réinitialiser aux valeurs par défaut
+        this.steps = [
+          { name: "Prendre la pilule", timings: ["7:00", "7:05"], recommended: "6:55 - 7:00" },
+          { name: "Manger", timings: ["7:10", "7:15"], recommended: "7:00 - 7:10" },
+          { name: "Habiller", timings: ["7:15", "7:20"], recommended: "7:10 - 7:15" },
+          { name: "Dents", timings: ["7:20", "7:25"], recommended: "7:15 - 7:20" },
+          { name: "Habillage pour dehors", timings: ["7:30", "7:30"], recommended: "7:20 - 7:30" }
+        ];
+      }
+      this.currentStepIndex = 0;
+      this.isRoutineCompleted = false;
       this.updateDisplay();
     });
   }

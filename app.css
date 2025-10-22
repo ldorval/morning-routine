@@ -118,3 +118,95 @@ body {
   font-size: 1.2rem;
   margin: 5px;
 }
+
+.test-settings h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.test-settings hr {
+  margin: 1.5rem 0;
+  border: none;
+  border-top: 2px solid #ddd;
+}
+
+.step-config-header {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+  font-weight: bold;
+  color: #555;
+  font-size: 0.9rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #ddd;
+}
+
+.step-config-header .header-name {
+  flex: 2;
+  min-width: 150px;
+}
+
+.step-config-header .header-green,
+.step-config-header .header-orange {
+  flex: 1;
+  min-width: 100px;
+}
+
+.step-config-header .header-recommended {
+  flex: 1.5;
+  min-width: 120px;
+}
+
+.step-config-header .header-actions {
+  width: 45px;
+}
+
+.step-config {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.step-config input[type="text"],
+.step-config input[type="time"] {
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.step-config .step-name {
+  flex: 2;
+  min-width: 150px;
+}
+
+.step-config .step-time-green,
+.step-config .step-time-orange {
+  flex: 1;
+  min-width: 100px;
+}
+
+.step-config .step-recommended {
+  flex: 1.5;
+  min-width: 120px;
+}
+
+.step-config .remove-step {
+  padding: 5px 10px;
+  margin: 0;
+}
+
+#steps-config {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
