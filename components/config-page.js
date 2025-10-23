@@ -53,16 +53,6 @@
         <h1>⚙️ Configurations</h1>
         <a href="index.html" class="test-button">← Retour à la routine</a>
       </div>
-
-      <div class="config-section">
-        <h2>Heure personnalisée</h2>
-        <div class="config-content">
-          <input type="time" id="custom-time" step="60" value="${this.customTime || ''}">
-          <button id="set-custom-time" class="test-button">Définir l'heure</button>
-          <button id="reset-custom-time" class="test-button">Réinitialiser l'heure</button>
-          <p id="custom-time-indicator" style="display: ${indicatorDisplay}">Mode heure personnalisée activé</p>
-        </div>
-      </div>
       
       <div class="config-section">
         <h2>Étapes de la routine</h2>
@@ -86,6 +76,16 @@
               <button id="clear-steps" class="test-button" style="background-color: #dc3545;">🗑️ Supprimer toutes les étapes</button>
             ` : ''}
           </div>
+        </div>
+      </div>
+      
+      <div class="config-section">
+        <h2>Tests</h2>
+        <div class="config-content">
+          <input type="time" id="custom-time" step="60" value="${this.customTime || ''}">
+          <button id="set-custom-time" class="test-button">Définir l'heure</button>
+          <button id="reset-custom-time" class="test-button">Réinitialiser l'heure</button>
+          <p id="custom-time-indicator" style="display: ${indicatorDisplay}">Mode heure personnalisée activé</p>
         </div>
       </div>
     `;
