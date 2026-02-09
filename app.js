@@ -8,7 +8,7 @@
 
 let currentStepIndex = 0;
 
-const audio = new Audio("https://www.soundjay.com/button/beep-07.wav");
+const audio = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
 const notificationAudio = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
 let isMuted = JSON.parse(localStorage.getItem('isMuted')) || false;
 

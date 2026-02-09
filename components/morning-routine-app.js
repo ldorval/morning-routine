@@ -22,7 +22,7 @@ class MorningRoutineApp extends HTMLElement {
     this.isMuted = JSON.parse(localStorage.getItem('isMuted')) || false;
     this.isRoutineCompleted = false;
 
-    this.audio = new Audio("https://www.soundjay.com/button/beep-07.wav");
+    this.audio = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
     this.notificationAudio = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
   }
 
